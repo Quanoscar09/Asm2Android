@@ -7,12 +7,12 @@
     android:padding="16dp"
     android:background="@drawable/pic2">
 
-  <!-- Name Input -->
+  <!-- Username Input -->
   <EditText
-      android:id="@+id/nameInput"
+      android:id="@+id/usernameInput"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="Full Name"
+      android:hint="Username"
       android:inputType="textPersonName"
       android:padding="12dp"
       android:layout_marginBottom="12dp" />
@@ -37,22 +37,25 @@
       android:padding="12dp"
       android:layout_marginBottom="12dp" />
 
-  <!-- Role Group -->
+  <!-- Role Selection Group -->
   <RadioGroup
       android:id="@+id/roleGroup"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="16dp">
+
     <RadioButton
         android:id="@+id/roleDonor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Donor" />
+
     <RadioButton
         android:id="@+id/roleManager"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Site Manager" />
+
     <RadioButton
         android:id="@+id/roleSuperUser"
         android:layout_width="wrap_content"
@@ -70,15 +73,15 @@
       android:textColor="@android:color/white"
       android:layout_marginBottom="16dp" />
 
-  <!-- Login Redirect -->
+  <!-- Login Redirect Text -->
   <TextView
       android:id="@+id/loginRedirectText"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="Already have an account? Login here"
-      android:layout_marginTop="16dp"
-      android:gravity="center"
       android:textColor="@color/purple_500"
       android:textSize="14sp"
-      android:layout_gravity="center_horizontal" />
+      android:gravity="center"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="16dp" />
 </LinearLayout>

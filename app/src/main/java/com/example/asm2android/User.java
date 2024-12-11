@@ -1,15 +1,20 @@
 package com.example.asm2android;
 
 public class User {
-    public String name;
+    public String username;
     public String email;
+    public String password;
     public String role;
 
-    public User() { }
+    // Default constructor required for Firebase
+    public User() {
+    }
 
-    public User(String name, String email, String role) {
-        this.name = name;
+    // Parameterized constructor
+    public User(String username, String email, String password, String role) {
+        this.username = username;
         this.email = email;
+        this.password = password;
         this.role = role;
     }
 }
