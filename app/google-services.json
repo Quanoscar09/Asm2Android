@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "433336795182",
+    "project_id": "asm2-android-b50cc",
+    "storage_bucket": "asm2-android-b50cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433336795182:android:28a9b250e69ea6a2f39fbf",
+        "android_client_info": {
+          "package_name": "com.example.asm2android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfMwOB8FsnhgZ3Xgp66xTpJag1WylCTXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
