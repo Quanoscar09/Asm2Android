@@ -48,7 +48,10 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0")) // Firebase BOM for consistent versions
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
     implementation("com.google.firebase:firebase-database-ktx") // Firebase Realtime Database
-    implementation("com.google.android.gms:play-services-maps:18.1.0") // Google Maps SDK
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.activity) // Google Maps SDK
 
     // Unit testing dependencies
     testImplementation("junit:junit:4.13.2") // JUnit for unit tests

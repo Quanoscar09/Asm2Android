@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -7,57 +6,52 @@
     android:padding="16dp"
     android:background="@drawable/pic2">
 
-  <!-- Username Input -->
+  <!-- Full Name Input -->
   <EditText
-      android:id="@+id/usernameInput"
+      android:id="@+id/registerName"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="Username"
-      android:inputType="textPersonName"
-      android:padding="12dp"
-      android:layout_marginBottom="12dp" />
+      android:hint="Full Name" />
 
   <!-- Email Input -->
   <EditText
-      android:id="@+id/emailInput"
+      android:id="@+id/registerEmail"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="Email Address"
-      android:inputType="textEmailAddress"
-      android:padding="12dp"
-      android:layout_marginBottom="12dp" />
+      android:hint="Email" />
 
   <!-- Password Input -->
   <EditText
-      android:id="@+id/passwordInput"
+      android:id="@+id/registerPassword"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="Password"
-      android:inputType="textPassword"
-      android:padding="12dp"
-      android:layout_marginBottom="12dp" />
+      android:inputType="textPassword" />
 
-  <!-- Role Selection Group -->
+  <!-- Phone Number Input -->
+  <EditText
+      android:id="@+id/registerPhone"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="Phone Number" />
+
+  <!-- Role Selection -->
   <RadioGroup
       android:id="@+id/roleGroup"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="16dp">
-
+      android:layout_height="wrap_content">
     <RadioButton
-        android:id="@+id/roleDonor"
+        android:id="@+id/radioDonor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Donor" />
-
     <RadioButton
-        android:id="@+id/roleManager"
+        android:id="@+id/radioManager"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Site Manager" />
-
+        android:text="Manager" />
     <RadioButton
-        android:id="@+id/roleSuperUser"
+        android:id="@+id/radioSuperUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Super User" />
@@ -65,23 +59,19 @@
 
   <!-- Register Button -->
   <Button
-      android:id="@+id/registerButton"
+      android:id="@+id/registerBtn"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="Register"
-      android:backgroundTint="@color/purple_500"
-      android:textColor="@android:color/white"
-      android:layout_marginBottom="16dp" />
+      android:text="Register" />
 
-  <!-- Login Redirect Text -->
+  <!-- Redirect to Login -->
   <TextView
-      android:id="@+id/loginRedirectText"
+      android:id="@+id/loginRedirect"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Already have an account? Login here"
+      android:text="Already have an account? Click here to login."
       android:textColor="@color/purple_500"
       android:textSize="14sp"
-      android:gravity="center"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="16dp" />
+      android:layout_marginTop="16dp"
+      android:layout_gravity="center" />
 </LinearLayout>

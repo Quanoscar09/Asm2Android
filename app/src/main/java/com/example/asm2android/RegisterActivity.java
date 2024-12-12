@@ -4,52 +4,68 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText usernameInput, emailInput, passwordInput;
+    private EditText fullNameInput, emailInput, passwordInput, phoneInput;
     private RadioGroup roleGroup;
     private Button registerButton;
+    private TextView loginRedirect;
 
-    private DatabaseReference databaseReference;
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Initialize Firebase Database
-        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+        // Initialize Firebase
+        fAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
 
         // Initialize UI components
-        usernameInput = findViewById(R.id.usernameInput);
-        emailInput = findViewById(R.id.emailInput);
-        passwordInput = findViewById(R.id.passwordInput);
+        fullNameInput = findViewById(R.id.registerName);
+        emailInput = findViewById(R.id.registerEmail);
+        passwordInput = findViewById(R.id.registerPassword);
+        phoneInput = findViewById(R.id.registerPhone);
         roleGroup = findViewById(R.id.roleGroup);
-        registerButton = findViewById(R.id.registerButton);
+        registerButton = findViewById(R.id.registerBtn);
+        loginRedirect = findViewById(R.id.loginRedirect);
 
-        // Set click listener for the register button
+        // Set up register button click listener
         registerButton.setOnClickListener(v -> registerUser());
+
+        // Set up login redirect click listener
+        loginRedirect.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void registerUser() {
-        String username = usernameInput.getText().toString().trim();
+        String fullName = fullNameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
+        String phone = phoneInput.getText().toString().trim();
         int selectedRoleId = roleGroup.getCheckedRadioButtonId();
-        RadioButton selectedRoleButton = findViewById(selectedRoleId);
 
-        // Validate inputs
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || selectedRoleButton == null) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty() || selectedRoleId == -1) {
+            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -58,20 +74,48 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        String role = selectedRoleButton.getText().toString();
+        String role;
+        if (selectedRoleId == R.id.radioDonor) {
+            role = "Donor";
+        } else if (selectedRoleId == R.id.radioManager) {
+            role = "Manager";
+        } else {
+            role = "SuperUser";
+        }
 
-        // Save user data in Firebase
-        databaseReference.child(username).setValue(new User(username, email, password, role))
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                        // Redirect to MapsActivity
-                        Intent intent = new Intent(RegisterActivity.this, MapsActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+        fAuth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    FirebaseUser user = fAuth.getCurrentUser();
+                    if (user != null) {
+                        DocumentReference df = fStore.collection("Users").document(user.getUid());
+                        Map<String, Object> userInfo = new HashMap<>();
+                        userInfo.put("FullName", fullName);
+                        userInfo.put("Email", email);
+                        userInfo.put("PhoneNumber", phone);
+                        userInfo.put("Role", role);
+
+                        df.set(userInfo).addOnSuccessListener(aVoid -> {
+                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                            navigateToRoleActivity(role);
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(RegisterActivity.this, "Failed to save user info: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
                     }
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(this, "Registration failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void navigateToRoleActivity(String role) {
+        Intent intent;
+        if ("Donor".equals(role)) {
+            intent = new Intent(RegisterActivity.this, DonorActivity.class);
+        } else if ("Manager".equals(role)) {
+            intent = new Intent(RegisterActivity.this, ManagerActivity.class);
+        } else {
+            intent = new Intent(RegisterActivity.this, SuperUserActivity.class);
+        }
+        startActivity(intent);
+        finish();
     }
 }

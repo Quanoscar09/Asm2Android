@@ -12,42 +12,56 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Asm2Android"
         tools:targetApi="31">
-
-        <!-- Google Maps API Key -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC2gMTU8D5mSWsNfzTY66REvyRygEGvRtY" />
-        <!-- RegisterActivity -->
         <activity
-            android:name="com.example.asm2android.RegisterActivity"
+            android:name=".RegisterActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC2gMTU8D5mSWsNfzTY66REvyRygEGvRtY" /> <!-- RegisterActivity -->
         <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- MapsActivity -->
         <activity
-            android:name=".MapsActivity"
-            android:exported="true"
-            android:label="@string/title_activity_maps">
+            android:name=".ManagerActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DonorActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SuperUserActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
     </application>
 

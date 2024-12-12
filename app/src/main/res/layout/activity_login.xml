@@ -7,13 +7,24 @@
     android:padding="16dp"
     android:background="@drawable/pic2">
 
-    <!-- Username Input -->
-    <EditText
-        android:id="@+id/usernameInput"
+    <!-- Title -->
+    <TextView
+        android:id="@+id/loginTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
-        android:inputType="text"
+        android:text="Login"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Email Input -->
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email Address"
+        android:inputType="textEmailAddress"
         android:padding="12dp"
         android:layout_marginBottom="12dp" />
 
