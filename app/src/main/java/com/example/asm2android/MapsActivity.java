@@ -1,10 +1,10 @@
 package com.example.asm2android;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -19,7 +19,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -29,15 +32,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DonationSiteHelper dbHelper;
     private FusedLocationProviderClient fusedLocationClient;
 
+    // HashMap to store site details with markers
+    private HashMap<Marker, String> siteIdMap = new HashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // Initialize database helper and location client
         dbHelper = new DonationSiteHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Initialize map
+        // Initialize the map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         if (mapFragment != null) {
@@ -52,21 +59,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Enable zoom controls
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        // Check for location permission
+        // Check for location permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Request location permissions
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
 
-        // Enable user location
+        // Enable the user's current location
         mMap.setMyLocationEnabled(true);
 
-        // Load donation sites from SQLite database
+        // Load donation sites from the SQLite database and display them as markers on the map
         loadSitesFromDatabase();
 
-        // Get current location
+        // Display the user's current location
         getCurrentLocation();
+
+        // Handle marker clicks
+        mMap.setOnMarkerClickListener(marker -> {
+            String siteName = marker.getTitle();
+            String siteId = siteIdMap.get(marker);
+            if (siteId != null) {
+                // Launch Registration Activity and pass the site name
+                Intent intent = new Intent(MapsActivity.this, RegistrationActivity.class);
+                intent.putExtra("siteName", siteName);
+                startActivity(intent);
+            }
+            return false;
+        });
     }
 
     private void loadSitesFromDatabase() {
@@ -75,45 +96,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
+                // Retrieve site details
+                int siteId = cursor.getInt(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ID));
                 String siteName = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_NAME));
                 String siteAddress = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ADDRESS));
                 double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LATITUDE));
                 double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LONGITUDE));
 
+                // Create a LatLng object for the site's location
                 LatLng location = new LatLng(latitude, longitude);
 
-                // Add marker for each site on the map
-                mMap.addMarker(new MarkerOptions()
+                // Add a marker for the site on the map
+                Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(location)
                         .title(siteName)
                         .snippet(siteAddress));
+
+                if (marker != null) {
+                    // Map the marker to the site ID
+                    siteIdMap.put(marker, String.valueOf(siteId));
+                }
             } while (cursor.moveToNext());
 
             cursor.close();
         } else {
+            // Notify the user if no sites are found
             Toast.makeText(this, "No donation sites found.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void getCurrentLocation() {
+        // Check location permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
 
+        // Retrieve the last known location
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
+                // Create a LatLng object for the user's current location
                 LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                // Add marker for current location
+                // Add a marker for the user's current location
                 mMap.addMarker(new MarkerOptions()
                         .position(currentLatLng)
                         .title("Your Location"));
 
-                // Move camera to current location
+                // Move the camera to the user's current location
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
             } else {
+                // Notify the user if the current location is unavailable
                 Toast.makeText(this, "Unable to get current location.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -125,9 +159,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
+                // Permission granted, retrieve the current location
                 getCurrentLocation();
             } else {
+                // Notify the user that location permission is required
                 Toast.makeText(this, "Location permission is required to display your current location.", Toast.LENGTH_SHORT).show();
             }
         }

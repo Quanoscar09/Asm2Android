@@ -38,7 +38,7 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         dbHelper = new DonationSiteHelper(this);
         database = dbHelper.getWritableDatabase();
 
-        // Handle button actions
+        // Button actions
         addSiteButton.setOnClickListener(v -> addDonationSite());
         showSitesButton.setOnClickListener(v -> showAllSites());
         deleteSiteButton.setOnClickListener(v -> deleteDonationSite());
@@ -61,7 +61,11 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
             double latitude = Double.parseDouble(latitudeStr);
             double longitude = Double.parseDouble(longitudeStr);
             dbHelper.insertDonationSite(database, name, address, hours, bloodTypes, latitude, longitude);
+
+            // Notify user
             Toast.makeText(this, "Site added successfully!", Toast.LENGTH_SHORT).show();
+
+            // Optionally, reload the map to show the new marker immediately
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid coordinates", Toast.LENGTH_SHORT).show();
         }

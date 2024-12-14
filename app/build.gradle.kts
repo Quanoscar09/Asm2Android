@@ -52,7 +52,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
-    implementation(libs.activity) // Google Maps SDK
+    implementation(libs.activity)
+    implementation(libs.play.services.location) // Google Maps SDK
 
 
 

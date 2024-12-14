@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/pic4">
 
     <Button
         android:id="@+id/createDonationSiteButton"
@@ -12,16 +13,30 @@
         android:text="Create Donation Site" />
 
     <Button
-        android:id="@+id/viewDonorsButton"
+        android:id="@+id/viewDonorListButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View Donors and Volunteers"
+        android:text="View Donor List"
         android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/inputDriveDataButton"
+        android:id="@+id/deleteDonorButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Input Drive Data"
+        android:text="Delete Donor"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/viewMapButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Map"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/logOutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log Out"
         android:layout_marginTop="16dp" />
 </LinearLayout>

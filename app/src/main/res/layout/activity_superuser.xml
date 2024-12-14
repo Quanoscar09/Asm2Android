@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/pic4">
 
     <Button
         android:id="@+id/viewAllSitesButton"
@@ -16,5 +17,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Generate Reports"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/logOutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log Out"
         android:layout_marginTop="16dp" />
 </LinearLayout>
