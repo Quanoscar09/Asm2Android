@@ -6,33 +6,34 @@
     android:padding="16dp"
     android:background="@drawable/pic3">
 
-    <TextView
-        android:id="@+id/donorTitle"
+    <EditText
+        android:id="@+id/donorNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Donor Dashboard"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:hint="Full Name" />
 
-    <Button
-        android:id="@+id/viewDonationSitesButton"
+    <EditText
+        android:id="@+id/donorEmailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View Donation Sites" />
+        android:hint="Email" />
 
-    <Button
-        android:id="@+id/registerDonationButton"
+    <EditText
+        android:id="@+id/donorPhoneInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register for Donation"
+        android:hint="Phone Number" />
+
+    <Spinner
+        android:id="@+id/donationSiteSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/logoutButton"
+        android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Logout"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="Register" />
 </LinearLayout>

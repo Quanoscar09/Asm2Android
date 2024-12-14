@@ -1,0 +1,83 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Input fields -->
+        <EditText
+            android:id="@+id/siteNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Site Name"
+            android:layout_marginBottom="12dp"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/siteAddressInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Site Address"
+            android:layout_marginBottom="12dp"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/donationHoursInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Donation Hours"
+            android:layout_marginBottom="12dp"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/requiredBloodTypesInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Required Blood Types"
+            android:layout_marginBottom="12dp"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/latitudeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Latitude"
+            android:layout_marginBottom="12dp"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/longitudeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Longitude"
+            android:layout_marginBottom="12dp"
+            android:inputType="numberDecimal" />
+
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/addSiteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Site"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/showSitesButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show All Sites"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/deleteSiteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Site"
+            android:layout_marginBottom="12dp" />
+    </LinearLayout>
+</ScrollView>

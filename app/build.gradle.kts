@@ -1,6 +1,7 @@
-plugins {
+  plugins {
     id("com.android.application") // Apply the Android application plugin
-    id("com.google.gms.google-services") // Apply the Firebase Google Services plugin
+    id("com.google.gms.google-services")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin) // Apply the Firebase Google Services plugin
 }
 
 android {
@@ -52,6 +53,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.activity) // Google Maps SDK
+
+
 
     // Unit testing dependencies
     testImplementation("junit:junit:4.13.2") // JUnit for unit tests
