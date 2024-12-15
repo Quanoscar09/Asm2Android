@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DonationSiteHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "BloodDonation.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2; // Increment version to trigger onUpgrade
 
     public static final String TABLE_DONATION_SITES = "DonationSites";
     public static final String SITE_ID = "_id";
@@ -19,6 +19,7 @@ public class DonationSiteHelper extends SQLiteOpenHelper {
     public static final String SITE_BLOOD_TYPES = "bloodTypes";
     public static final String SITE_LATITUDE = "latitude";
     public static final String SITE_LONGITUDE = "longitude";
+    public static final String SITE_EVENT_DATE = "eventDate"; // New column for event date
 
     private static final String CREATE_TABLE_SITES =
             "CREATE TABLE " + TABLE_DONATION_SITES + " (" +
@@ -28,7 +29,8 @@ public class DonationSiteHelper extends SQLiteOpenHelper {
                     SITE_HOURS + " TEXT NOT NULL, " +
                     SITE_BLOOD_TYPES + " TEXT NOT NULL, " +
                     SITE_LATITUDE + " REAL NOT NULL, " +
-                    SITE_LONGITUDE + " REAL NOT NULL);";
+                    SITE_LONGITUDE + " REAL NOT NULL, " +
+                    SITE_EVENT_DATE + " TEXT NOT NULL);"; // Add event date column
 
     public DonationSiteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -41,11 +43,12 @@ public class DonationSiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DONATION_SITES);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_DONATION_SITES + " ADD COLUMN " + SITE_EVENT_DATE + " TEXT NOT NULL DEFAULT 'N/A';");
+        }
     }
 
-    public void insertDonationSite(SQLiteDatabase db, String name, String address, String hours, String bloodTypes, double latitude, double longitude) {
+    public void insertDonationSite(SQLiteDatabase db, String name, String address, String hours, String bloodTypes, double latitude, double longitude, String eventDate) {
         ContentValues values = new ContentValues();
         values.put(SITE_NAME, name);
         values.put(SITE_ADDRESS, address);
@@ -53,6 +56,7 @@ public class DonationSiteHelper extends SQLiteOpenHelper {
         values.put(SITE_BLOOD_TYPES, bloodTypes);
         values.put(SITE_LATITUDE, latitude);
         values.put(SITE_LONGITUDE, longitude);
+        values.put(SITE_EVENT_DATE, eventDate); // Add event date
         db.insert(TABLE_DONATION_SITES, null, values);
     }
 

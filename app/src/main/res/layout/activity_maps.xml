@@ -1,59 +1,48 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/mapToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:title="Blood Donation Sites"
-        android:titleTextColor="@android:color/white" />
 
     <!-- Map Fragment -->
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/mapToolbar" />
+        android:layout_height="match_parent" />
 
-    <!-- Input Fields for Filter -->
-    <EditText
-        android:id="@+id/bloodTypeInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Enter Blood Type"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-
-    <EditText
-        android:id="@+id/eventDateInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Enter Event Date"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-
-    <!-- Filter Button -->
-    <Button
-        android:id="@+id/filterButton"
-        android:layout_width="wrap_content"
+    <!-- Search Inputs -->
+    <LinearLayout
+        android:id="@+id/searchLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/teal_700"
-        android:text="Search"
-        android:textColor="@android:color/white" />
+        android:layout_marginBottom="80dp"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/bloodTypeInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Blood Type (e.g., B+)" />
+
+        <EditText
+            android:id="@+id/eventDateInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Event Date (yyyy-MM-dd)" />
+
+        <Button
+            android:id="@+id/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="SEARCH"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/purple_700" />
+    </LinearLayout>
 
     <!-- Back Button -->
     <Button
@@ -63,8 +52,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/purple_500"
-        android:text="Back"
-        android:textColor="@android:color/white" />
+        android:text="BACK"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/purple_500" />
 
 </RelativeLayout>

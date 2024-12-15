@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CreateDonationSiteActivity extends AppCompatActivity {
 
-    private EditText siteNameInput, siteAddressInput, donationHoursInput, requiredBloodTypesInput, latitudeInput, longitudeInput, siteIdInput;
+    private EditText siteNameInput, siteAddressInput, donationHoursInput, requiredBloodTypesInput, latitudeInput, longitudeInput, siteIdInput, eventDateInput;
     private Button addSiteButton, showSitesButton, deleteSiteButton, deleteByIdButton;
 
     private DonationSiteHelper dbHelper;
@@ -30,11 +30,12 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         requiredBloodTypesInput = findViewById(R.id.requiredBloodTypesInput);
         latitudeInput = findViewById(R.id.latitudeInput);
         longitudeInput = findViewById(R.id.longitudeInput);
-        siteIdInput = findViewById(R.id.siteIdInput); // New input field for Site ID
+        siteIdInput = findViewById(R.id.siteIdInput);
+        eventDateInput = findViewById(R.id.eventDateInput); // New input field for event date
         addSiteButton = findViewById(R.id.addSiteButton);
         showSitesButton = findViewById(R.id.showSitesButton);
         deleteSiteButton = findViewById(R.id.deleteSiteButton);
-        deleteByIdButton = findViewById(R.id.deleteByIdButton); // New button for deleting by ID
+        deleteByIdButton = findViewById(R.id.deleteByIdButton);
 
         // Initialize database helper
         dbHelper = new DonationSiteHelper(this);
@@ -44,34 +45,48 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         addSiteButton.setOnClickListener(v -> addDonationSite());
         showSitesButton.setOnClickListener(v -> showAllSites());
         deleteSiteButton.setOnClickListener(v -> deleteDonationSiteByName());
-        deleteByIdButton.setOnClickListener(v -> deleteDonationSiteById()); // Action for deleting by ID
+        deleteByIdButton.setOnClickListener(v -> deleteDonationSiteById());
     }
 
     private void addDonationSite() {
+        // Retrieve and trim inputs
         String name = siteNameInput.getText().toString().trim();
         String address = siteAddressInput.getText().toString().trim();
         String hours = donationHoursInput.getText().toString().trim();
         String bloodTypes = requiredBloodTypesInput.getText().toString().trim();
         String latitudeStr = latitudeInput.getText().toString().trim();
         String longitudeStr = longitudeInput.getText().toString().trim();
+        String eventDate = eventDateInput.getText().toString().trim(); // Retrieve event date
 
-        if (name.isEmpty() || address.isEmpty() || hours.isEmpty() || bloodTypes.isEmpty() || latitudeStr.isEmpty() || longitudeStr.isEmpty()) {
+        // Check for empty fields
+        if (name.isEmpty() || address.isEmpty() || hours.isEmpty() || bloodTypes.isEmpty() ||
+                latitudeStr.isEmpty() || longitudeStr.isEmpty() || eventDate.isEmpty()) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
+            // Parse latitude and longitude
             double latitude = Double.parseDouble(latitudeStr);
             double longitude = Double.parseDouble(longitudeStr);
-            dbHelper.insertDonationSite(database, name, address, hours, bloodTypes, latitude, longitude);
+
+            // Validate event date format (yyyy-MM-dd)
+            if (!eventDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                Toast.makeText(this, "Invalid date format. Use yyyy-MM-dd.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Insert data into the database
+            dbHelper.insertDonationSite(database, name, address, hours, bloodTypes, latitude, longitude, eventDate);
 
             // Notify user
             Toast.makeText(this, "Site added successfully!", Toast.LENGTH_SHORT).show();
 
-            // Optionally, clear inputs after adding
+            // Clear inputs after successful addition
             clearInputs();
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid coordinates", Toast.LENGTH_SHORT).show();
+            // Handle invalid latitude/longitude values
+            Toast.makeText(this, "Invalid latitude or longitude", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -90,7 +105,8 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
             builder.append("Hours: ").append(cursor.getString(3)).append("\n");
             builder.append("Blood Types: ").append(cursor.getString(4)).append("\n");
             builder.append("Latitude: ").append(cursor.getDouble(5)).append("\n");
-            builder.append("Longitude: ").append(cursor.getDouble(6)).append("\n\n");
+            builder.append("Longitude: ").append(cursor.getDouble(6)).append("\n");
+            builder.append("Event Date: ").append(cursor.getString(7)).append("\n\n");
         }
 
         cursor.close();
@@ -145,6 +161,7 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         latitudeInput.setText("");
         longitudeInput.setText("");
         siteIdInput.setText("");
+        eventDateInput.setText("");
     }
 
     @Override

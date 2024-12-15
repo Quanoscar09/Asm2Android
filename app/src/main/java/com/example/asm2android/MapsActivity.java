@@ -1,11 +1,13 @@
 package com.example.asm2android;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,10 +35,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DonationSiteHelper dbHelper;
     private FusedLocationProviderClient fusedLocationClient;
 
-    private Button backButton;
+    private Button backButton, searchButton;
+    private EditText bloodTypeInput, eventDateInput;
 
-    // HashMap to store site details with markers
     private HashMap<Marker, String> siteIdMap = new HashMap<>();
+    private LatLng currentLatLng = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +50,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         dbHelper = new DonationSiteHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Initialize the Back Button
+        // Initialize UI elements
         backButton = findViewById(R.id.backButton);
+        searchButton = findViewById(R.id.filterButton);
+        bloodTypeInput = findViewById(R.id.bloodTypeInput);
+        eventDateInput = findViewById(R.id.eventDateInput);
 
-        // Set Back Button click listener
+        // Set button click listeners
         backButton.setOnClickListener(v -> onBackPressed());
+        searchButton.setOnClickListener(v -> searchDonationSites());
 
         // Initialize the map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -65,34 +72,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Enable zoom controls
+        // Enable map controls
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        // Check for location permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Request location permissions
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            return;
+        // Check and enable location permissions
+        if (checkLocationPermissions()) {
+            mMap.setMyLocationEnabled(true);
+            getCurrentLocation();
         }
 
-        // Enable the user's current location
-        mMap.setMyLocationEnabled(true);
-
-        // Load donation sites from the SQLite database and display them as markers on the map
+        // Load markers for donation sites
         loadSitesFromDatabase();
 
-        // Display the user's current location
-        getCurrentLocation();
-
-        // Handle marker clicks
+        // Marker click listener to show details
         mMap.setOnMarkerClickListener(marker -> {
             String siteId = siteIdMap.get(marker);
             if (siteId != null) {
-                // Retrieve the site details from the database and show the dialog
-                showSiteDetailsDialog(siteId);
+                showMarkerDetailsDialog(siteId);
             }
             return false;
+        });
+    }
+
+    private boolean checkLocationPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    private void getCurrentLocation() {
+        if (!checkLocationPermissions()) return;
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(currentLatLng)
+                        .title("Your Location"));
+            } else {
+                Toast.makeText(this, "Unable to get current location.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -102,108 +128,110 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                // Retrieve site details
-                int siteId = cursor.getInt(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ID));
-                String siteName = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_NAME));
-                String siteAddress = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ADDRESS));
-                double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LATITUDE));
-                double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LONGITUDE));
-
-                // Create a LatLng object for the site's location
-                LatLng location = new LatLng(latitude, longitude);
-
-                // Add a marker for the site on the map
-                Marker marker = mMap.addMarker(new MarkerOptions()
-                        .position(location)
-                        .title(siteName)
-                        .snippet(siteAddress));
-
-                if (marker != null) {
-                    // Map the marker to the site ID
-                    siteIdMap.put(marker, String.valueOf(siteId));
-                }
+                addMarkerForSite(cursor);
             } while (cursor.moveToNext());
-
             cursor.close();
-        } else {
-            // Notify the user if no sites are found
-            Toast.makeText(this, "No donation sites found.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void getCurrentLocation() {
-        // Check location permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            return;
+    private void addMarkerForSite(Cursor cursor) {
+        int siteId = cursor.getInt(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ID));
+        String siteName = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_NAME));
+        String siteAddress = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ADDRESS));
+        double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LATITUDE));
+        double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LONGITUDE));
+
+        LatLng location = new LatLng(latitude, longitude);
+
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(location)
+                .title(siteName)
+                .snippet(siteAddress));
+        if (marker != null) {
+            siteIdMap.put(marker, String.valueOf(siteId));
         }
-
-        // Retrieve the last known location
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if (location != null) {
-                // Create a LatLng object for the user's current location
-                LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                // Add a marker for the user's current location
-                mMap.addMarker(new MarkerOptions()
-                        .position(currentLatLng)
-                        .title("Your Location"));
-
-                // Move the camera to the user's current location
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
-            } else {
-                // Notify the user if the current location is unavailable
-                Toast.makeText(this, "Unable to get current location.", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
-    private void showSiteDetailsDialog(String siteId) {
+    private void showMarkerDetailsDialog(String siteId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DonationSiteHelper.TABLE_DONATION_SITES,
-                null,
-                DonationSiteHelper.SITE_ID + "=?",
-                new String[]{siteId},
-                null,
-                null,
-                null);
+        Cursor cursor = db.query(DonationSiteHelper.TABLE_DONATION_SITES, null,
+                DonationSiteHelper.SITE_ID + "=?", new String[]{siteId},
+                null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
             String siteName = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_NAME));
             String siteAddress = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ADDRESS));
             String bloodTypes = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_BLOOD_TYPES));
-            String donationHours = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_HOURS));
-
+            String eventDate = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_EVENT_DATE));
             cursor.close();
 
-            // Show a dialog with site details
             new AlertDialog.Builder(this)
                     .setTitle(siteName)
                     .setMessage("Address: " + siteAddress + "\n" +
-                            "Donation Hours: " + donationHours + "\n" +
-                            "Blood Types Needed: " + bloodTypes)
+                            "Blood Types Needed: " + bloodTypes + "\n" +
+                            "Event Date: " + eventDate)
                     .setPositiveButton("Register", (dialog, which) -> {
-                        // Placeholder for registration logic
-                        Toast.makeText(MapsActivity.this, "Register for " + siteName, Toast.LENGTH_SHORT).show();
+                        // Open Registration Activity with the selected site name
+                        Intent intent = new Intent(MapsActivity.this, RegistrationActivity.class);
+                        intent.putExtra("siteName", siteName);
+                        startActivity(intent);
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .show();
+        } else {
+            Toast.makeText(this, "Unable to fetch site details.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private void searchDonationSites() {
+        String bloodType = bloodTypeInput.getText().toString().trim();
+        String eventDate = eventDateInput.getText().toString().trim();
 
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, retrieve the current location
-                getCurrentLocation();
-            } else {
-                // Notify the user that location permission is required
-                Toast.makeText(this, "Location permission is required to display your current location.", Toast.LENGTH_SHORT).show();
+        if (bloodType.isEmpty() && eventDate.isEmpty()) {
+            Toast.makeText(this, "Please enter blood type or event date to search.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mMap.clear();
+        if (currentLatLng != null) {
+            mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Your Location"));
+        }
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String selection = "";
+        String[] selectionArgs = null;
+
+        if (!bloodType.isEmpty() && !eventDate.isEmpty()) {
+            selection = DonationSiteHelper.SITE_BLOOD_TYPES + " LIKE ? AND " +
+                    DonationSiteHelper.SITE_EVENT_DATE + " = ?";
+            selectionArgs = new String[]{"%" + bloodType + "%", eventDate};
+        } else if (!bloodType.isEmpty()) {
+            selection = DonationSiteHelper.SITE_BLOOD_TYPES + " LIKE ?";
+            selectionArgs = new String[]{"%" + bloodType + "%"};
+        } else {
+            selection = DonationSiteHelper.SITE_EVENT_DATE + " = ?";
+            selectionArgs = new String[]{eventDate};
+        }
+
+        Cursor cursor = db.query(DonationSiteHelper.TABLE_DONATION_SITES, null, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            LatLng firstLocation = null;
+            do {
+                addMarkerForSite(cursor);
+                if (firstLocation == null) {
+                    firstLocation = new LatLng(
+                            cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LATITUDE)),
+                            cursor.getDouble(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_LONGITUDE)));
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+
+            if (firstLocation != null) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(firstLocation, 15));
             }
+        } else {
+            Toast.makeText(this, "No matching donation sites found.", Toast.LENGTH_SHORT).show();
         }
     }
 }

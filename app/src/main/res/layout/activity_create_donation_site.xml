@@ -67,6 +67,14 @@
             android:hint="Enter Site ID (for delete)"
             android:layout_marginBottom="12dp"
             android:inputType="number" />
+        <EditText
+            android:id="@+id/eventDateInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Event Date (yyyy-mm-dd)"
+            android:inputType="date"
+            android:layout_marginTop="8dp" />
+
 
         <!-- Buttons -->
         <Button
