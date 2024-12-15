@@ -1,11 +1,11 @@
 package com.example.asm2android;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +33,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DonationSiteHelper dbHelper;
     private FusedLocationProviderClient fusedLocationClient;
 
+    private Button backButton;
+
     // HashMap to store site details with markers
     private HashMap<Marker, String> siteIdMap = new HashMap<>();
 
@@ -44,6 +46,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Initialize database helper and location client
         dbHelper = new DonationSiteHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Initialize the Back Button
+        backButton = findViewById(R.id.backButton);
+
+        // Set Back Button click listener
+        backButton.setOnClickListener(v -> onBackPressed());
 
         // Initialize the map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -176,10 +184,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             "Donation Hours: " + donationHours + "\n" +
                             "Blood Types Needed: " + bloodTypes)
                     .setPositiveButton("Register", (dialog, which) -> {
-                        // Launch Registration Activity
-                        Intent intent = new Intent(MapsActivity.this, RegistrationActivity.class);
-                        intent.putExtra("siteId", siteId);
-                        startActivity(intent);
+                        // Placeholder for registration logic
+                        Toast.makeText(MapsActivity.this, "Register for " + siteName, Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();

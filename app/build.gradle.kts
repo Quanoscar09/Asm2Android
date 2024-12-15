@@ -54,6 +54,8 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.activity)
     implementation(libs.play.services.location) // Google Maps SDK
+    implementation ("com.google.maps.android:android-maps-utils:2.3.0")
+
 
 
 
