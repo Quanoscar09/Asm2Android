@@ -59,6 +59,15 @@
             android:layout_marginBottom="12dp"
             android:inputType="numberDecimal" />
 
+        <!-- Input for Site ID -->
+        <EditText
+            android:id="@+id/siteIdInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Site ID (for delete)"
+            android:layout_marginBottom="12dp"
+            android:inputType="number" />
+
         <!-- Buttons -->
         <Button
             android:id="@+id/addSiteButton"
@@ -78,7 +87,14 @@
             android:id="@+id/deleteSiteButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Delete Site"
+            android:text="Delete Site By Name"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/deleteByIdButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Site By ID"
             android:layout_marginBottom="12dp" />
     </LinearLayout>
 </ScrollView>

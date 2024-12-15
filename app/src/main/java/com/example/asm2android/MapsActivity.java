@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -78,13 +79,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Handle marker clicks
         mMap.setOnMarkerClickListener(marker -> {
-            String siteName = marker.getTitle();
             String siteId = siteIdMap.get(marker);
             if (siteId != null) {
-                // Launch Registration Activity and pass the site name
-                Intent intent = new Intent(MapsActivity.this, RegistrationActivity.class);
-                intent.putExtra("siteName", siteName);
-                startActivity(intent);
+                // Retrieve the site details from the database and show the dialog
+                showSiteDetailsDialog(siteId);
             }
             return false;
         });
@@ -151,6 +149,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(this, "Unable to get current location.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showSiteDetailsDialog(String siteId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(DonationSiteHelper.TABLE_DONATION_SITES,
+                null,
+                DonationSiteHelper.SITE_ID + "=?",
+                new String[]{siteId},
+                null,
+                null,
+                null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String siteName = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_NAME));
+            String siteAddress = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_ADDRESS));
+            String bloodTypes = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_BLOOD_TYPES));
+            String donationHours = cursor.getString(cursor.getColumnIndexOrThrow(DonationSiteHelper.SITE_HOURS));
+
+            cursor.close();
+
+            // Show a dialog with site details
+            new AlertDialog.Builder(this)
+                    .setTitle(siteName)
+                    .setMessage("Address: " + siteAddress + "\n" +
+                            "Donation Hours: " + donationHours + "\n" +
+                            "Blood Types Needed: " + bloodTypes)
+                    .setPositiveButton("Register", (dialog, which) -> {
+                        // Launch Registration Activity
+                        Intent intent = new Intent(MapsActivity.this, RegistrationActivity.class);
+                        intent.putExtra("siteId", siteId);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
     }
 
     @Override

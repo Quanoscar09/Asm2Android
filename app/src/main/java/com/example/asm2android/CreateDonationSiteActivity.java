@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CreateDonationSiteActivity extends AppCompatActivity {
 
-    private EditText siteNameInput, siteAddressInput, donationHoursInput, requiredBloodTypesInput, latitudeInput, longitudeInput;
-    private Button addSiteButton, showSitesButton, deleteSiteButton;
+    private EditText siteNameInput, siteAddressInput, donationHoursInput, requiredBloodTypesInput, latitudeInput, longitudeInput, siteIdInput;
+    private Button addSiteButton, showSitesButton, deleteSiteButton, deleteByIdButton;
 
     private DonationSiteHelper dbHelper;
     private SQLiteDatabase database;
@@ -30,9 +30,11 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         requiredBloodTypesInput = findViewById(R.id.requiredBloodTypesInput);
         latitudeInput = findViewById(R.id.latitudeInput);
         longitudeInput = findViewById(R.id.longitudeInput);
+        siteIdInput = findViewById(R.id.siteIdInput); // New input field for Site ID
         addSiteButton = findViewById(R.id.addSiteButton);
         showSitesButton = findViewById(R.id.showSitesButton);
         deleteSiteButton = findViewById(R.id.deleteSiteButton);
+        deleteByIdButton = findViewById(R.id.deleteByIdButton); // New button for deleting by ID
 
         // Initialize database helper
         dbHelper = new DonationSiteHelper(this);
@@ -41,7 +43,8 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         // Button actions
         addSiteButton.setOnClickListener(v -> addDonationSite());
         showSitesButton.setOnClickListener(v -> showAllSites());
-        deleteSiteButton.setOnClickListener(v -> deleteDonationSite());
+        deleteSiteButton.setOnClickListener(v -> deleteDonationSiteByName());
+        deleteByIdButton.setOnClickListener(v -> deleteDonationSiteById()); // Action for deleting by ID
     }
 
     private void addDonationSite() {
@@ -65,7 +68,8 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
             // Notify user
             Toast.makeText(this, "Site added successfully!", Toast.LENGTH_SHORT).show();
 
-            // Optionally, reload the map to show the new marker immediately
+            // Optionally, clear inputs after adding
+            clearInputs();
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid coordinates", Toast.LENGTH_SHORT).show();
         }
@@ -98,7 +102,7 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void deleteDonationSite() {
+    private void deleteDonationSiteByName() {
         String name = siteNameInput.getText().toString().trim();
         if (name.isEmpty()) {
             Toast.makeText(this, "Enter site name to delete", Toast.LENGTH_SHORT).show();
@@ -111,6 +115,36 @@ public class CreateDonationSiteActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No site found with the provided name", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void deleteDonationSiteById() {
+        String idStr = siteIdInput.getText().toString().trim();
+        if (idStr.isEmpty()) {
+            Toast.makeText(this, "Enter site ID to delete", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idStr);
+            int rowsDeleted = database.delete(DonationSiteHelper.TABLE_DONATION_SITES, DonationSiteHelper.SITE_ID + "=?", new String[]{String.valueOf(id)});
+            if (rowsDeleted > 0) {
+                Toast.makeText(this, "Site deleted successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "No site found with the provided ID", Toast.LENGTH_SHORT).show();
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid site ID", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void clearInputs() {
+        siteNameInput.setText("");
+        siteAddressInput.setText("");
+        donationHoursInput.setText("");
+        requiredBloodTypesInput.setText("");
+        latitudeInput.setText("");
+        longitudeInput.setText("");
+        siteIdInput.setText("");
     }
 
     @Override
